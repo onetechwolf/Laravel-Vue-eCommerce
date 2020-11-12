@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Brand extends Model
 {
-    // use HasFactory;
+    use HasFactory;
     protected $guarded = [];
 
     public function scopeSearch($query,$q)
@@ -31,11 +31,6 @@ class Brand extends Model
         $q       =  $request->has('q') ? $request->query('q') : '' ;
 
         return $query->search($q)->orderBy($orderBy , $sortBy)->paginate($perPage);
-    }
-
-    public function products()
-    {
-        return $this->hasMany(Product::class);
     }
 
 }

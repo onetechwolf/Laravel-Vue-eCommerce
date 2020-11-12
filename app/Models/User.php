@@ -6,9 +6,8 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Gloudemans\Shoppingcart\Contracts\InstanceIdentifier;
 
-class User extends Authenticatable implements InstanceIdentifier
+class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
@@ -41,24 +40,4 @@ class User extends Authenticatable implements InstanceIdentifier
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
-    	/**
-     * Get the unique identifier to load the Cart from
-     *
-     * @return int|string
-     */
-    public function getInstanceIdentifier($options = null)
-    {
-        return $this->email;
-    }
-
-    /**
-     * Get the unique identifier to load the Cart from
-     *
-     * @return int|string
-     */
-    public function getInstanceGlobalDiscount($options = null)
-    {
-        // return $this->taxRate ?: 0;
-        return $this->discountRate ?: 0;
-    }
 }

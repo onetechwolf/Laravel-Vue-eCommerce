@@ -33,7 +33,7 @@ class ProductRepository implements ProductContract
         $KEY = $this->getCachekey();
 
         return Cache::remember($KEY, now()->addMinutes(120), function () use($request) {
-            $products =  $this->model::with('images')->filter($request);
+            $products =  $this->model::filter($request);
             return ProductResource::collection($products);
         });
     }
@@ -68,11 +68,7 @@ class ProductRepository implements ProductContract
      */
     public function create(array $params){
         $this->flush($this->CACHE_KEY);
-        $request = collect($params);
-        if($request->has('categories')){
-            $product = $this->model->create($request->except('categories')->toArray());
-            $product->categories()->sync($request['categories']);
-        }
+        $product = $this->model->create($params);
         return new ProductResource($product);
     }
 
@@ -83,6 +79,7 @@ class ProductRepository implements ProductContract
             return Cache::remember($KEY, now()->addMinutes(120), function () use($product) {
                 return new ProductResource($product);
             });
+
         }
     }
     /**
@@ -92,15 +89,9 @@ class ProductRepository implements ProductContract
     public function update( $params,$id){
         $product = $this->findById($id);
         if($product){
-            $request = collect($params)->except('attributes', 'images');
-
-            if($request->has('categories')){
-                $updated  = $product->update($request->except('categories')->toArray());
-                $product->categories()->sync($request['categories']);
-
-                $this->flush($this->CACHE_KEY);
-                 return new ProductResource($product);
-            }
+            $updated  = $product->update($params);
+            $this->flush($this->CACHE_KEY);
+            return new ProductResource($product);
         }
     }
     public function findByCriteria($criteria = 'id', $data ){
@@ -125,17 +116,15 @@ class ProductRepository implements ProductContract
     public function bulk_delete($selected_data)
     {
         $this->flush($this->CACHE_KEY);
-        DB::beginTransaction();
         foreach ($selected_data as $product) {
             $found = $this->findById($product['id']);
             $path = 'products/'.$found['image'];
-
             if (Storage::disk('public')->exists($path)) {
                 Storage::disk('public')->delete($path);
             }
+            DB::beginTransaction();
             $found->delete();
+            DB::commit();
         }
-        DB::commit();
-        // success
     }
 }

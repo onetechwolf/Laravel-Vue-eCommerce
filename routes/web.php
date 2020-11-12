@@ -1,11 +1,20 @@
 <?php
 
-
+use App\Events\AdminLoginAlert;
+use App\Http\Controllers\Admin\BrandController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\ProductController;
+use App\Jobs\SendEmailJobs;
+use App\Mail\AdminAlertMail;
+use App\Models\Brand;
+use App\Models\Product;
+use App\Notifications\AdminLoginResponser;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-
-// use Melihovv\ShoppingCart\Facades\ShoppingCart as Cart;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Mail;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,78 +26,38 @@ use Illuminate\Support\Facades\Auth;
 | contains the "web" middleware group. Now create something great!
 |
 */
-require "admin.php";
-Route::view('/admin/{r}', 'admin_layout')->where('r', '.*');
-require "site.php";
 
-Route::view('/test', 'test');
+Route::view('/', 'content');
+Route::view('/user-login', 'user_login')->name('login');
 
-Route::get('/set', function (Request $request) {
-    // return Cart::content();
-    $id            = $request->id;
-    $name          = $request->name;
-    $price         = $request->price;
-    $qty           = $request->qty;
-    $image         = $request->image;
-    $weight        = $request->has('weight') ? $request->weight : 0;
+// Route::any('{any}', function () {
+//     return view('admin_layout');
+// });
 
-    $options = collect( [] );
-    if($request->has('image')){
-        $options = $options->merge(['image' => $request->image]);
-    }
-    if($request->has('size')){
-        $options = $options->merge(['size' => $request->size]);
-    }
-    if($request->has('colour')){
-        $options = $options->merge(['colour' => $request->colour]);
-   }
-   $requests = collect($request->only('id','name','price','weight'));
-   $addData  = $requests->merge([['options' => $options]]);
+Route::view('/{any}', 'admin_layout')->where('any', 'admin.*');
 
-   $add = Cart::instance('wishlist')->add(
-       [
-        'id' => $id,
-        'name' => $name ,
-        'qty' => $qty,
-        'price' => $price,
-        'weight' => $weight ,
-        'options' => [$options]
-       ]
-   );
+// Route::any('/admin', function () {
+//     return view('admin_layout');
+// });
 
-//    $add = Cart::add($id, $name , $qty, $price, $weight , [$options]);
-//    $add = Cart::get($add->rowId);
-   if(Cart::instance('wishlist')->content()->has($add->rowId)){
-        $wislists   = Cart::instance('wishlist')->content();
-        $subtotal =  Cart::instance('wishlist')->subtotal();
-        $tax =  Cart::instance('wishlist')->tax();
-        $total =  Cart::instance('wishlist')->total();
-        $count =  Cart::instance('wishlist')->content()->count();
-        return response()->json(
-            compact('wislists','subtotal','tax','total','count')
-            , 200);
-   }
+Route::group(['prefix' => 'api/admin' , 'middleware' => 'auth:admin' ], function () {
+    Route::get('subcategories' , [CategoryController::class , 'subcategories']);
+    Route::post('categories/multi' , [CategoryController::class , 'multiDelete']);
+    Route::apiResource('categories' , CategoryController::class);
+    Route::post('brands/multi' , [BrandController::class , 'multiDelete']);
+    Route::apiResource('brands' , BrandController::class);
+    Route::post('products/bulk_delete' , [ProductController::class , 'bulk_delete']);
+    Route::apiResource('products' , ProductController::class);
 });
 
-Route::get('/get', function () {
-    $wislists   = Cart::instance('wishlist')->content();
-    $subtotal =  Cart::instance('wishlist')->subtotal();
-    $tax =  Cart::instance('wishlist')->tax();
-    $total =  Cart::instance('wishlist')->total();
-    $count =  Cart::instance('wishlist')->content()->count();
-    return response()->json(
-        compact('wislists','subtotal','tax','total','count')
-        , 200);
-});
-
-Route::view('/{any}', 'site')->where('any','.*');
-
-Route::view('/offline', 'offline');
 
 
-// Route::view('/user-login', 'user_login')->name('login');
+Route::post('/api/login/admin', [App\Http\Controllers\AdminController::class, 'login'])->name('adminLogin');
+
+// Route::get('/login/admin', [App\Http\Controllers\AdminController::class, 'getLoginForm'])->name('getAdminLogin');
+Route::post('/api/logout/admin', [App\Http\Controllers\Admin\LoginController::class, 'logout'])->name('adminLogout');
 
 
-Auth::routes();
+// Auth::routes();
 
 // Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
