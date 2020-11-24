@@ -1,9 +1,3 @@
-/**
- * First we will load all of this project's JavaScript dependencies which
- * includes Vue and other libraries. It is a great starting point when
- * building robust, powerful web applications using Vue and Laravel.
- */
-console.time('start')
 require('./bootstrap');
 
 window.Vue = require('vue');
@@ -67,10 +61,9 @@ Vue.filter('timeFormat' , arg => {
 
 
 
-const app = new Vue({
+const aadminapp = new Vue({
     el: '#admin',
     i18n,
     router,
     store,
 });
-console.timeEnd('start')

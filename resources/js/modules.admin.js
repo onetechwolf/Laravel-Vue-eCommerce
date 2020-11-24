@@ -1,6 +1,8 @@
 import camelCase from 'lodash/camelCase'
-const requireModule = require.context('./admin/modules', true, /\.js$/)
+const requireModule = require.context('./modules', true, /\.js$/)
 const modules = {}
+
+
 
 requireModule.keys().forEach(fileName => {
     let str = fileName.split('/')
@@ -14,7 +16,6 @@ requireModule.keys().forEach(fileName => {
         const moduleName = camelCase(
             fileName.replace(/(\.\/|\.js)/g, '')
         )
-        console.log(moduleName );
 
     // create a dynamic object with all modules
         modules[moduleName] = {

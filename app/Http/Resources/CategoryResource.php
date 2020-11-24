@@ -19,7 +19,11 @@ class CategoryResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'slug' => $this->slug,
-            'icon' => $this->icon ? Storage::url('categories/'.$this->icon) :  Storage::url('categories/default.png')
+            'icon' => $this->icon ? url($this->icon) :  Storage::url('categories/default.png'),
+            'subcategories' => count($this->subcategories) > 0 ? $this->subcategories : [],
+            'products' => $this->products,
+            'products_count' => count($this->products)
+
         ];
     }
 }
