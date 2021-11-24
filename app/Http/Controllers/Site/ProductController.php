@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Site;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\BrandResource;
 use App\Http\Resources\CategoryResource;
 use App\Http\Resources\ProductResource;
 use App\Models\Attribute;
@@ -102,31 +103,23 @@ class ProductController extends Controller
     }
     public function SingleBrand(Request $request, $slug)
     {
-
-        //   return Cache::remember('brand.'.$slug.".".$request->filter, now()->addMinute(60), function () use($slug) {
-        return Brand::where('slug', $slug)->with(['products' => function ($q) use ($request) {
-            $q->priceFilter($request);
-        }])->withCount('products')->firstOrFail();
-        //   });
+    return Cache::remember('brand.'.$slug.".".$request->filter.$request->page, now()->addMinute(60), function () use($slug,$request) {
+            $brandProducts = Brand::where('slug', $slug)
+                ->with(['products' => function ($q) use ($request) {
+                    $q->priceFilter($request);
+                    $q->paginate();
+                }])
+                ->firstOrFail();
+            return new BrandResource($brandProducts);
+          });
     }
     public function index()
     {
-
         return Cache::remember('categories', now()->addMinutes(120), function () {
             return CategoryResource::collection(Category::where('id', '!=', 1)->take(6)->get());
         });
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
 
     /**
      * Display the specified resource.
@@ -145,37 +138,4 @@ class ProductController extends Controller
         }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
 }

@@ -1,37 +1,45 @@
 <template>
-<div class="container">
-    <div class="row">
-
-        <MultipleFilter />
-        <div class="col-9">
-            <PopularCategories/>
-            <ShopByBrands/>
-            <Products />
+    <div class="container">
+        <div class="row">
+            <MultipleFilter />
+            <div class="col-9">
+                <PopularCategories />
+                <ShopByBrands />
+                <ProductsHome />
+            </div>
         </div>
-    </div>
-    <HotDealProducts/>
-     <CategoriesProducts
+
+        <CategoriesProducts
             v-for="category in categories"
             :key="category.id"
             :category="category"
-    />
-
-</div>
-
+        />
+    </div>
 </template>
 <script>
-import { mapState } from 'vuex';
+import { mapState } from "vuex";
 
 export default {
     components: {
-        PopularCategories: () => import(/* webpackChunkName: "Chunks/Site-PopularCategories" */ '../comonents/Category/PopularCategories'),
-        CategoriesProducts: () => import(/* webpackChunkName: "Chunks/Site-CategoriesProducts" */ '../comonents/Category/CategoriesProducts'),
-        HotDealProducts: () => import(/* webpackChunkName: "Chunks/Site-HotDealProducts" */ '../comonents/Category/HotDealProducts'),
-        ShopByBrands: () => import(/* webpackChunkName: "Chunks/Site-ShopByBrands" */ '../comonents/Brand/ShopByBrands'),
-        Products: () => import(/* webpackChunkName: "Chunks/Site-Products" */ '../comonents/Product/Products'),
+        PopularCategories: () =>
+            import(
+                /* webpackChunkName: "Chunks/Site/Components/PopularCategories" */ "../components/Category/PopularCategories.vue"
+            ),
+        CategoriesProducts: () =>
+            import(
+                /* webpackChunkName: "Chunks/Site/Components/CategoriesProducts" */ "../components/Category/CategoriesProducts"
+            ),
+        ProductsHome: () =>
+            import(
+                /* webpackChunkName: "Chunks/Site/Components/HomeProducts"*/ "../components/Product/Products.vue"
+            ),
+        ShopByBrands: () =>
+            import(
+                /* webpackChunkName: "Chunks/Site/Components/ShopByBrands" */ "../components/Brand/ShopByBrands"
+            )
     },
-    computed:{
-      ...mapState("categoriesStoreIndex",["categories"])
+    computed: {
+        ...mapState("categoriesStoreIndex", ["categories"])
     }
-}
+};
 </script>
